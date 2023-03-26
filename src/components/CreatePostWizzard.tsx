@@ -4,8 +4,6 @@ import Image from "next/image";
 export function CreatePostWizzard() {
   const { user } = useUser();
 
-  console.log(user);
-
   if (!user) return null;
 
   return (

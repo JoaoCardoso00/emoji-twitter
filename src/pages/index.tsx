@@ -2,18 +2,23 @@ import { SignIn, SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { CreatePostWizzard } from "~/components/CreatePostWizzard";
+import { Feed } from "~/components/Feed";
+import { LoadingPage } from "~/components/Loading";
 import { Post } from "~/components/Post";
 
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
-  const user = useUser();
+  const {
+    user,
+    isLoaded: isUserLoaded,
+    isSignedIn: isUserSignedIn,
+  } = useUser();
 
-  const { data, isLoading } = api.posts.getAll.useQuery();
+  // start fetching posts asap
+  api.posts.getAll.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
-
-  if (!data) return <div>Something went wrong</div>;
+  if (!isUserLoaded) return <div></div>;
 
   return (
     <>
@@ -25,13 +30,9 @@ const Home: NextPage = () => {
       <main className="flex h-screen justify-center">
         <div className="w-full border-x border-slate-400 md:max-w-2xl">
           <div className="flex border-b border-slate-400 p-4">
-            {user.isSignedIn ? <CreatePostWizzard /> : <SignInButton />}
+            {isUserSignedIn ? <CreatePostWizzard /> : <SignInButton />}
           </div>
-          <div className="flex flex-col">
-            {data.map(({ post, author }) => (
-              <Post post={post} author={author} key={post.id} />
-            ))}
-          </div>
+          <Feed />
         </div>
       </main>
     </>
